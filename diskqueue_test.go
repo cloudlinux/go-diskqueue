@@ -813,7 +813,7 @@ func numberOfBadFiles(diskQueueName string, dataPath string) int64 {
 
 	fileInfos, _ := ioutil.ReadDir(dataPath)
 	for _, fileInfo := range fileInfos {
-		regExp, _ := regexp.Compile(`^` + diskQueueName + `.diskqueue.\d\d\d\d\d\d.dat.bad$`)
+		regExp, _ := regexp.Compile(`^` + diskQueueName + `.diskqueue.\d+.dat.bad$`)
 		if regExp.MatchString(fileInfo.Name()) {
 			badFilesCount++
 		}
