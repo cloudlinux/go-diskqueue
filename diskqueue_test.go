@@ -821,7 +821,6 @@ func numberOfBadFiles(diskQueueName string, dataPath string) int64 {
 
 func TestDiskSizeImplementationWithBadFiles(t *testing.T) {
 	// write three files
-	t.SkipNow()
 
 	l := NewTestLogger(t)
 	dqName := "test_disk_queue_implementation_with_bad_files" + strconv.Itoa(int(time.Now().Unix()))
@@ -956,7 +955,7 @@ readCorruptedFile:
 	<-dq.ReadChan()
 
 	// wait for DiskQueue to notice that file 2 is corrupted
-	time.Sleep(20 * time.Millisecond)
+	time.Sleep(1 * time.Second)
 
 	// check if the file was converted into a .bad file
 	badFilesCount = numberOfBadFiles(dqName, tmpDir)
