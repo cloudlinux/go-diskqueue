@@ -323,8 +323,6 @@ func TestDiskQueueCorruption(t *testing.T) {
 
 	Equal(t, msg, <-dq.ReadChan())
 
-	dq.Depth()
-
 	badFilesCount = numberOfBadFiles(dqName, tmpDir)
 	if badFilesCount != 2 {
 		panic("fail")
