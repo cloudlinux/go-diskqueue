@@ -814,23 +814,23 @@ func (d *diskQueue) retrieveMetaData() error {
 	// in which case the safest thing to do is skip to the next file for
 	// writes, and let the reader salvage what it can from the messages in the
 	// diskqueue beyond the metadata's likely also stale readPos
-	//fileName = d.fileName(d.writeFileNum)
-	//fileInfo, err := os.Stat(fileName)
-	//if err != nil {
-	//	return err
-	//}
-	//fileSize := fileInfo.Size()
-	//if d.writePos < fileSize {
-	//	d.logf(WARN,
-	//		"DISKQUEUE(%s) %s metadata writePos %d < file size of %d, skipping to new file",
-	//		d.name, fileName, d.writePos, fileSize)
-	//	d.writeFileNum += 1
-	//	d.writePos = 0
-	//	if d.writeFile != nil {
-	//		d.writeFile.Close()
-	//		d.writeFile = nil
-	//	}
-	//}
+	fileName = d.fileName(d.writeFileNum)
+	fileInfo, err := os.Stat(fileName)
+	if err != nil {
+		return err
+	}
+	fileSize := fileInfo.Size()
+	if d.writePos < fileSize {
+		d.logf(WARN,
+			"DISKQUEUE(%s) %s metadata writePos %d < file size of %d, skipping to new file",
+			d.name, fileName, d.writePos, fileSize)
+		d.writeFileNum += 1
+		d.writePos = 0
+		if d.writeFile != nil {
+			d.writeFile.Close()
+			d.writeFile = nil
+		}
+	}
 
 	return nil
 }

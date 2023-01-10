@@ -320,8 +320,12 @@ func TestDiskQueueCorruption(t *testing.T) {
 	os.Truncate(dqFn, 100)
 
 	dq.Put(msg) // in 5th file
+	dq.Put(msg)
 
 	Equal(t, msg, <-dq.ReadChan())
+	Equal(t, msg, <-dq.ReadChan())
+
+	time.Sleep(1 * time.Second)
 
 	badFilesCount = numberOfBadFiles(dqName, tmpDir)
 	if badFilesCount != 2 {
