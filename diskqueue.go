@@ -642,13 +642,11 @@ func (d *diskQueue) writeOne(data []byte) error {
 
 	dataLen := int32(len(data))
 	totalBytes := int64(4 + dataLen)
+	reachedFileSizeLimit := false
 
 	if dataLen < d.minMsgSize || dataLen > d.maxMsgSize {
 		return fmt.Errorf("invalid message write size (%d) minMsgSize=%d maxMsgSize=%d", dataLen, d.minMsgSize, d.maxMsgSize)
 	}
-
-  totalBytes := int64(4 + dataLen)
-	reachedFileSizeLimit := false
 
 	if d.enableDiskLimitation {
 		expectedBytesIncrease := totalBytes
