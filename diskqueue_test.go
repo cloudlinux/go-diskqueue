@@ -323,7 +323,7 @@ func TestDiskQueueCorruption(t *testing.T) {
 
 	Equal(t, msg, <-dq.ReadChan())
 
-	time.Sleep(1 * time.Second)
+	dq.Depth()
 
 	badFilesCount = numberOfBadFiles(dqName, tmpDir)
 	if badFilesCount != 2 {
