@@ -149,6 +149,7 @@ func TestDiskQueuePeek(t *testing.T) {
 	t.Run("roll", func(t *testing.T) {
 		for i := 0; i < 10; i++ {
 			err := dq.Put(msg)
+
 			Nil(t, err)
 			Equal(t, int64(i+1), dq.Depth())
 		}
@@ -327,7 +328,7 @@ func TestDiskQueueCorruption(t *testing.T) {
 	Equal(t, msg, <-dq.ReadChan())
 	badFilesCount = numberOfBadFiles(dqName, tmpDir)
 	if badFilesCount != 2 {
-		panic("fail")
+		panic(badFilesCount)
 	}
 
 	// write a corrupt (len 0) message at the 5th (current) file
@@ -339,12 +340,12 @@ func TestDiskQueueCorruption(t *testing.T) {
 
 	Equal(t, msg, <-dq.ReadChan())
 
-  // conflict was here
+	// conflict was here
 	badFilesCount = numberOfBadFiles(dqName, tmpDir)
 	if badFilesCount != 3 {
 		panic("fail")
 	}
-  //
+	//
 
 	dq.Put(msg)
 	dq.Put(msg)

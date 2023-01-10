@@ -152,6 +152,7 @@ func NewWithDiskSpace(name string, dataPath string,
 		minMsgSize:           minMsgSize,
 		maxMsgSize:           maxMsgSize,
 		readChan:             make(chan []byte),
+		peekChan:             make(chan []byte),
 		depthChan:            make(chan int64),
 		writeChan:            make(chan []byte),
 		writeResponseChan:    make(chan error),
@@ -648,23 +649,6 @@ func (d *diskQueue) writeOne(data []byte) error {
 		return fmt.Errorf("invalid message write size (%d) minMsgSize=%d maxMsgSize=%d", dataLen, d.minMsgSize, d.maxMsgSize)
 	}
 
-	if d.enableDiskLimitation {
-		expectedBytesIncrease := totalBytes
-		// check if we will reach or surpass file size limit
-		if d.writePos+totalBytes+numFileMsgBytes >= d.maxBytesPerFile {
-			reachedFileSizeLimit = true
-			expectedBytesIncrease += numFileMsgBytes
-		}
-
-		// free disk space if needed
-		err = d.checkDiskSpace(expectedBytesIncrease)
-		if err != nil {
-			return err
-		}
-	} else if d.writePos+totalBytes >= d.maxBytesPerFile {
-		reachedFileSizeLimit = true
-	}
-
 	// will not wrap-around if maxBytesPerFile + maxMsgSize < Int64Max
 	if d.writePos > 0 && d.writePos+totalBytes > d.maxBytesPerFile {
 		if d.readFileNum == d.writeFileNum {
@@ -685,6 +669,7 @@ func (d *diskQueue) writeOne(data []byte) error {
 			d.writeFile = nil
 		}
 	}
+
 	if d.writeFile == nil {
 		curFileName := d.fileName(d.writeFileNum)
 		d.writeFile, err = os.OpenFile(curFileName, os.O_RDWR|os.O_CREATE, 0600)
@@ -702,6 +687,23 @@ func (d *diskQueue) writeOne(data []byte) error {
 				return err
 			}
 		}
+	}
+
+	if d.enableDiskLimitation {
+		expectedBytesIncrease := totalBytes
+		// check if we will reach or surpass file size limit
+		if d.writePos+totalBytes+numFileMsgBytes >= d.maxBytesPerFile {
+			reachedFileSizeLimit = true
+			expectedBytesIncrease += numFileMsgBytes
+		}
+
+		// free disk space if needed
+		err = d.checkDiskSpace(expectedBytesIncrease)
+		if err != nil {
+			return err
+		}
+	} else if d.writePos+totalBytes >= d.maxBytesPerFile {
+		reachedFileSizeLimit = true
 	}
 
 	d.writeBuf.Reset()
