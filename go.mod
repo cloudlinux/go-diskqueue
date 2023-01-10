@@ -1,3 +1,3 @@
-module github.com/nsqio/go-diskqueue
+module github.com/cloudlinux/go-diskqueue
 
 go 1.13
